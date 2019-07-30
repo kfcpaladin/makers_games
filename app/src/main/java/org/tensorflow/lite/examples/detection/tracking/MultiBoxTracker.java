@@ -155,12 +155,12 @@ public class MultiBoxTracker {
 
       final String labelString =
           !TextUtils.isEmpty(recognition.title)
-              ? String.format("%s %.2f", recognition.title, (100 * recognition.detectionConfidence))
-              : String.format("%.2f", (100 * recognition.detectionConfidence));
+              ? String.format("%s %.0f", recognition.title, (100 * recognition.detectionConfidence))
+              : String.format("%.0f", (100 * recognition.detectionConfidence));
       //            borderedText.drawText(canvas, trackedPos.left + cornerSize, trackedPos.top,
       // labelString);
       final String objectname = String.format("%s", recognition.title);
-      final String objectaccuracy = String.format("%.2f %%", (100*recognition.detectionConfidence));
+      final String objectaccuracy = String.format("%.0f %%", (100*recognition.detectionConfidence));
       RectF bounds1 = new RectF(mini1);
       RectF bounds2 = new RectF(mini2);
       // measure text width
