@@ -15,7 +15,10 @@ limitations under the License.
 
 package org.tensorflow.lite.examples.detection.tracking;
 
+import android.app.ActionBar;
 import android.content.Context;
+import org.tensorflow.lite.examples.detection.CameraActivity;
+import org.tensorflow.lite.examples.detection.DetectorActivity;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -25,6 +28,8 @@ import android.graphics.Paint.Join;
 import android.graphics.Paint.Style;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.widget.Toast;
+import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.util.TypedValue;
@@ -36,8 +41,13 @@ import org.tensorflow.lite.examples.detection.env.ImageUtils;
 import org.tensorflow.lite.examples.detection.env.Logger;
 import org.tensorflow.lite.examples.detection.tflite.Classifier.Recognition;
 
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.view.View;
+import android.view.ViewGroup.LayoutParams;
+
 /** A tracker that handles non-max suppression and matches existing objects to new detections. */
-public class MultiBoxTracker {
+public class MultiBoxTracker extends DetectorActivity{
   private static final float TEXT_SIZE_DIP = 18;
   private static final float MIN_SIZE = 16.0f;
   private static final int[] COLORS = {
@@ -138,19 +148,25 @@ public class MultiBoxTracker {
     for (final TrackedRecognition recognition : trackedObjects) {
       final RectF trackedPos = new RectF(recognition.location);
 
-
       getFrameToCanvasMatrix().mapRect(trackedPos);
+      super.temprect = trackedPos;
+
       boxPaint.setColor(recognition.color);
-      final RectF mini1 = new RectF(trackedPos.left, trackedPos.top-trackedPos.height()/4, trackedPos.left+trackedPos.width()/4, trackedPos.top);
+/*      final RectF mini1 = new RectF(trackedPos.left, trackedPos.top-trackedPos.height()/4, trackedPos.left+trackedPos.width()/4, trackedPos.top);
       final RectF mini2 = new RectF(trackedPos.left+trackedPos.width()/4, trackedPos.top-trackedPos.height()/4, trackedPos.centerX(), trackedPos.top);
       final RectF mini3 = new RectF(trackedPos.centerX(), trackedPos.top-trackedPos.height()/4, trackedPos.right-trackedPos.width()/4, trackedPos.top);
       final RectF mini4 = new RectF(trackedPos.right-trackedPos.width()/4, trackedPos.top-trackedPos.height()/4, trackedPos.right, trackedPos.top);
-      float cornerSize = Math.min(trackedPos.width(), trackedPos.height()) / 8.0f;
-      canvas.drawRect(trackedPos, boxPaint);
       canvas.drawRect(mini1, boxPaint);
       canvas.drawRect(mini2, boxPaint);
       canvas.drawRect(mini3, boxPaint);
-      canvas.drawRect(mini4, boxPaint);
+      canvas.drawRect(mini4, boxPaint);*/
+      canvas.drawRect(trackedPos, boxPaint);
+      //FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(instruction1.getWidth(), instruction1.getHeight());
+      //if (recognition.title=="tv"){
+      //    lp.setMargins(50, 50, 1000, 1000);
+      //    imageFrame.setLayoutParams(lp);
+      //};
+
 
 
       final String labelString =
@@ -159,9 +175,11 @@ public class MultiBoxTracker {
               : String.format("%.0f", (100 * recognition.detectionConfidence));
       //            borderedText.drawText(canvas, trackedPos.left + cornerSize, trackedPos.top,
       // labelString);
+
+
       final String objectname = String.format("%s", recognition.title);
       final String objectaccuracy = String.format("%.0f %%", (100*recognition.detectionConfidence));
-      RectF bounds1 = new RectF(mini1);
+      /*RectF bounds1 = new RectF(mini1);
       RectF bounds2 = new RectF(mini2);
       // measure text width
       bounds1.right = boxPaint.measureText(objectname, 0, objectname.length());
@@ -181,9 +199,9 @@ public class MultiBoxTracker {
       borderedText.drawText(
               canvas, bounds1.left, bounds1.top, objectname, boxPaint);
       borderedText.drawText(
-              canvas, bounds2.left, bounds2.top, objectaccuracy, boxPaint);
+              canvas, bounds2.left, bounds2.top, objectaccuracy, boxPaint);*/
       borderedText.drawText(
-          canvas, trackedPos.left + cornerSize, trackedPos.top, labelString + "%", boxPaint);
+          canvas, trackedPos.left, trackedPos.top, labelString + "%", boxPaint);
     }
   }
 

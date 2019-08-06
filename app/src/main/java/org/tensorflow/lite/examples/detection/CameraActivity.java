@@ -17,9 +17,12 @@
 package org.tensorflow.lite.examples.detection;
 
 import android.Manifest;
+import org.tensorflow.lite.examples.detection.tracking.MultiBoxTracker;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.hardware.Camera;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
@@ -36,22 +39,31 @@ import android.os.HandlerThread;
 import android.os.Trace;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SwitchCompat;
-import android.support.v7.widget.Toolbar;
+
+import java.util.Timer;
 import android.util.Size;
 import android.view.Surface;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
+import android.widget.FrameLayout;
+import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.nio.ByteBuffer;
+import java.util.TimerTask;
+import java.util.Random;
+
 import org.tensorflow.lite.examples.detection.env.ImageUtils;
 import org.tensorflow.lite.examples.detection.env.Logger;
+import com.github.barteksc.pdfviewer.PDFView;
 
 public abstract class CameraActivity extends AppCompatActivity
     implements OnImageAvailableListener,
@@ -59,8 +71,9 @@ public abstract class CameraActivity extends AppCompatActivity
         CompoundButton.OnCheckedChangeListener,
         View.OnClickListener {
   private static final Logger LOGGER = new Logger();
-
+  public RectF temprect;
   private static final int PERMISSIONS_REQUEST = 1;
+
 
   private static final String PERMISSION_CAMERA = Manifest.permission.CAMERA;
   protected int previewWidth = 0;
@@ -79,15 +92,22 @@ public abstract class CameraActivity extends AppCompatActivity
   private LinearLayout bottomSheetLayout;
   private LinearLayout gestureLayout;
   private BottomSheetBehavior sheetBehavior;
-
-  protected TextView frameValueTextView, cropValueTextView, inferenceTimeTextView;
+  private FrameLayout manualLayout, controlLayout;
+  public FrameLayout imageFrame;
+  public int instrint= 0;
+  protected TextView frameValueTextView, cropValueTextView, inferenceTimeTextView, volttext, amptext;
   protected ImageView bottomSheetArrowImageView;
   private ImageView plusImageView, minusImageView;
+  public ImageView instruction1;
   private SwitchCompat apiSwitchCompat;
   private TextView threadsTextView;
+  private Button openManual, closeManual, openControl, closeControl;
+  private PDFView webView;
+  private FrameLayout.LayoutParams lparams;
+  private Random rand;
 
   @Override
-  protected void onCreate(final Bundle savedInstanceState) {
+  public void onCreate(final Bundle savedInstanceState) {
     LOGGER.d("onCreate " + this);
     super.onCreate(null);
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -109,6 +129,83 @@ public abstract class CameraActivity extends AppCompatActivity
     gestureLayout = findViewById(R.id.gesture_layout);
     sheetBehavior = BottomSheetBehavior.from(bottomSheetLayout);
     bottomSheetArrowImageView = findViewById(R.id.bottom_sheet_arrow);
+    manualLayout = findViewById(R.id.manual_layout);
+    openManual = findViewById(R.id.manual_open);
+    closeManual = findViewById(R.id.manual_exit);
+    webView = findViewById(R.id.web_view);
+    openControl = findViewById(R.id.control_open);
+    closeControl = findViewById(R.id.control_exit);
+    controlLayout = findViewById(R.id.control_layout);
+    volttext = findViewById(R.id.voltage_info);
+    amptext = findViewById(R.id.current_info);
+    instruction1 = findViewById(R.id.instruction_1);
+    imageFrame = findViewById(R.id.image_frame);
+
+    lparams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+    //lparams.setMargins(10, 20, 30, 40);
+    //imageFrame.removeView(instruction1);
+    //imageFrame.addView(instruction1, lparams);
+
+    rand = new Random();
+    new Timer().schedule(new TimerTask() {
+      @Override
+      public void run() {
+        runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            moveinstructional();
+          }
+        });
+      }
+    },0,100);
+
+    new Timer().schedule(new TimerTask() {
+      @Override
+      public void run() {
+        runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            if (instrint == 0) {
+              instruction1.setImageResource(R.drawable.instruction2);
+              instrint = 1;
+            }
+            else {
+              instruction1.setImageResource(R.drawable.instruction1);
+              instrint = 0;
+            }
+          }
+        });
+      }
+    },0,2000);
+
+
+    openManual.setOnClickListener(new OnClickListener() {
+      public void onClick(View v) {
+        manualLayout.setVisibility(View.VISIBLE);
+        webView.fromAsset("test.pdf")
+                .enableAnnotationRendering(true)
+                .spacing(10) // in dp
+                .load();
+      }
+    });
+
+    closeManual.setOnClickListener(new OnClickListener() {
+      public void onClick(View v) {
+        manualLayout.setVisibility(View.GONE);
+      }
+    });
+
+    openControl.setOnClickListener(new OnClickListener() {
+      public void onClick(View v) {
+        controlLayout.setVisibility(View.VISIBLE);
+      }
+    });
+
+    closeControl.setOnClickListener(new OnClickListener() {
+      public void onClick(View v) {
+        controlLayout.setVisibility(View.GONE);
+      }
+    });
 
     ViewTreeObserver vto = gestureLayout.getViewTreeObserver();
     vto.addOnGlobalLayoutListener(
@@ -179,6 +276,19 @@ public abstract class CameraActivity extends AppCompatActivity
   protected byte[] getLuminance() {
     return yuvBytes[0];
   }
+
+
+  public void moveinstructional(){
+    if (temprect == null){return;}
+    else {
+      volttext.setText(String.format("%fmv", temprect.left));
+      amptext.setText(String.format("%fma", temprect.right));
+      lparams.setMargins((int) temprect.left * 100, (int) temprect.bottom * 100, 0, 0);
+      imageFrame.removeView(instruction1);
+      imageFrame.addView(instruction1, lparams);
+    }
+  }
+
 
   /** Callback for android.hardware.Camera API */
   @Override
