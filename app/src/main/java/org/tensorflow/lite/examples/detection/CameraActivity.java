@@ -202,7 +202,7 @@ public abstract class CameraActivity extends AppCompatActivity
     openManual.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         textToSpeech.speak(
-          String.valueOf("To switch off, unplug from the socket"), TextToSpeech.QUEUE_ADD, null
+          String.valueOf("To turn off, unplug from the socket"), TextToSpeech.QUEUE_ADD, null
         )
         manualLayout.setVisibility(View.VISIBLE);
         webView.fromAsset("test.pdf")
