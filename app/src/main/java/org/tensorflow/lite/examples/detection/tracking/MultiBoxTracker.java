@@ -150,9 +150,13 @@ public class MultiBoxTracker extends DetectorActivity{
 
       getFrameToCanvasMatrix().mapRect(trackedPos);
       super.temprect = trackedPos;
-
+      super.moveinstructional();
+      if (iscreated==1) {
+        createboundingbox(trackedPos, canvas, boxPaint);
+      }
       boxPaint.setColor(recognition.color);
-/*      final RectF mini1 = new RectF(trackedPos.left, trackedPos.top-trackedPos.height()/4, trackedPos.left+trackedPos.width()/4, trackedPos.top);
+
+      /*final RectF mini1 = new RectF(trackedPos.left, trackedPos.top-trackedPos.height()/4, trackedPos.left+trackedPos.width()/4, trackedPos.top);
       final RectF mini2 = new RectF(trackedPos.left+trackedPos.width()/4, trackedPos.top-trackedPos.height()/4, trackedPos.centerX(), trackedPos.top);
       final RectF mini3 = new RectF(trackedPos.centerX(), trackedPos.top-trackedPos.height()/4, trackedPos.right-trackedPos.width()/4, trackedPos.top);
       final RectF mini4 = new RectF(trackedPos.right-trackedPos.width()/4, trackedPos.top-trackedPos.height()/4, trackedPos.right, trackedPos.top);
@@ -161,11 +165,7 @@ public class MultiBoxTracker extends DetectorActivity{
       canvas.drawRect(mini3, boxPaint);
       canvas.drawRect(mini4, boxPaint);*/
       canvas.drawRect(trackedPos, boxPaint);
-      //FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(instruction1.getWidth(), instruction1.getHeight());
-      //if (recognition.title=="tv"){
-      //    lp.setMargins(50, 50, 1000, 1000);
-      //    imageFrame.setLayoutParams(lp);
-      //};
+
 
 
 

@@ -21,6 +21,8 @@ import org.tensorflow.lite.examples.detection.tracking.MultiBoxTracker;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.hardware.Camera;
@@ -88,6 +90,7 @@ public abstract class CameraActivity extends AppCompatActivity
   private int yRowStride;
   private Runnable postInferenceCallback;
   private Runnable imageConverter;
+  public int iscreated = 0;
 
   private LinearLayout bottomSheetLayout;
   private LinearLayout gestureLayout;
@@ -142,22 +145,28 @@ public abstract class CameraActivity extends AppCompatActivity
     imageFrame = findViewById(R.id.image_frame);
 
     lparams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+
+    //imageFrame.removeView(instruction1);
+    //imageFrame.addView(instruction1, lparams);
+
     //lparams.setMargins(10, 20, 30, 40);
     //imageFrame.removeView(instruction1);
     //imageFrame.addView(instruction1, lparams);
 
     rand = new Random();
+    iscreated = 1;
     new Timer().schedule(new TimerTask() {
       @Override
       public void run() {
         runOnUiThread(new Runnable() {
           @Override
           public void run() {
-            moveinstructional();
+
           }
         });
       }
     },0,100);
+
 
     new Timer().schedule(new TimerTask() {
       @Override
@@ -279,16 +288,27 @@ public abstract class CameraActivity extends AppCompatActivity
 
 
   public void moveinstructional(){
-    if (temprect == null){return;}
+    if (temprect == null || imageFrame == null){return;}
     else {
-      volttext.setText(String.format("%fmv", temprect.left));
-      amptext.setText(String.format("%fma", temprect.right));
-      lparams.setMargins((int) temprect.left * 100, (int) temprect.bottom * 100, 0, 0);
-      imageFrame.removeView(instruction1);
-      imageFrame.addView(instruction1, lparams);
+      lparams.setMargins(50, 100, 0, 0);
+      instruction1.setLayoutParams(lparams);
     }
   }
 
+  public void createboundingbox(RectF trackedPos, Canvas canvas, Paint boxPaint){
+    if (iscreated==1) {
+      volttext.setText(String.format("%fmv", trackedPos.left));
+      amptext.setText(String.format("%fma", trackedPos.right));
+    }
+    final RectF mini1 = new RectF(trackedPos.left, trackedPos.top-trackedPos.height()/4, trackedPos.left+trackedPos.width()/4, trackedPos.top);
+    final RectF mini2 = new RectF(trackedPos.left+trackedPos.width()/4, trackedPos.top-trackedPos.height()/4, trackedPos.centerX(), trackedPos.top);
+    final RectF mini3 = new RectF(trackedPos.centerX(), trackedPos.top-trackedPos.height()/4, trackedPos.right-trackedPos.width()/4, trackedPos.top);
+    final RectF mini4 = new RectF(trackedPos.right-trackedPos.width()/4, trackedPos.top-trackedPos.height()/4, trackedPos.right, trackedPos.top);
+    canvas.drawRect(mini1, boxPaint);
+    canvas.drawRect(mini2, boxPaint);
+    canvas.drawRect(mini3, boxPaint);
+    canvas.drawRect(mini4, boxPaint);
+  }
 
   /** Callback for android.hardware.Camera API */
   @Override
