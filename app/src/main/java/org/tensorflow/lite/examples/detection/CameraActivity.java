@@ -45,8 +45,10 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SwitchCompat;
 import android.speech.RecognizerIntent;
+import android.content.Intent;
 
-
+import java.util.Locale;
+import java.util.ArrayList;
 import java.util.Timer;
 import android.util.Size;
 import android.view.Surface;
@@ -68,6 +70,9 @@ import java.util.Random;
 import org.tensorflow.lite.examples.detection.env.ImageUtils;
 import org.tensorflow.lite.examples.detection.env.Logger;
 import com.github.barteksc.pdfviewer.PDFView;
+
+import android.speech.tts.TextToSpeech;
+import android.content.ActivityNotFoundException;
 
 public abstract class CameraActivity extends AppCompatActivity
     implements OnImageAvailableListener,
@@ -203,7 +208,7 @@ public abstract class CameraActivity extends AppCompatActivity
       public void onClick(View v) {
         textToSpeech.speak(
           String.valueOf("To turn off, unplug from the socket"), TextToSpeech.QUEUE_ADD, null
-        )
+        );
         manualLayout.setVisibility(View.VISIBLE);
         webView.fromAsset("test.pdf")
                 .enableAnnotationRendering(true)
@@ -291,13 +296,14 @@ public abstract class CameraActivity extends AppCompatActivity
   private void startVoiceInput() {
     Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
     intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-    intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Which machine would you like to isolate");
+    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.ENGLISH);
+    // intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Which machine would you like to isolate");
     try {
         startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
     } catch (ActivityNotFoundException a) {
 
     }
+//    startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
   }
 
   @Override
@@ -308,11 +314,12 @@ public abstract class CameraActivity extends AppCompatActivity
       case REQ_CODE_SPEECH_INPUT: {
         if (resultCode == RESULT_OK && null != data) {
           ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-          if ((result.get(0) == 'open' || result.get(0) == 'Open')
+
+          if ((result.get(0) == "open" || result.get(0) == "Open")
             &&
-            (result.get(1) == 'manual' || result.get(1) == 'Manual')
+            (result.get(1) == "manual" || result.get(1) == "Manual")
           ) {
-            openManual.PerformClick();
+            openManual.performClick();
           }
         }
         break;
