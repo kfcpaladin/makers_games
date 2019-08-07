@@ -63,15 +63,21 @@ import java.nio.ByteBuffer;
 import java.util.TimerTask;
 import java.util.Random;
 
+import android.speech.tts.TextToSpeech;
+
 import org.tensorflow.lite.examples.detection.env.ImageUtils;
 import org.tensorflow.lite.examples.detection.env.Logger;
 import com.github.barteksc.pdfviewer.PDFView;
+
+
 
 public abstract class CameraActivity extends AppCompatActivity
     implements OnImageAvailableListener,
         Camera.PreviewCallback,
         CompoundButton.OnCheckedChangeListener,
-        View.OnClickListener {
+        View.OnClickListener,
+        TextToSpeech.OnInitListener
+    {
   private static final Logger LOGGER = new Logger();
   public RectF temprect;
   private static final int PERMISSIONS_REQUEST = 1;
@@ -109,8 +115,17 @@ public abstract class CameraActivity extends AppCompatActivity
   private FrameLayout.LayoutParams lparams;
   private Random rand;
 
+
+  private TextToSpeech textToSpeech;
+
+  @Override
+  public void onInit(int i) { }
+
   @Override
   public void onCreate(final Bundle savedInstanceState) {
+
+    textToSpeech = new TextToSpeech(this, this);
+
     LOGGER.d("onCreate " + this);
     super.onCreate(null);
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -195,6 +210,9 @@ public abstract class CameraActivity extends AppCompatActivity
                 .enableAnnotationRendering(true)
                 .spacing(10) // in dp
                 .load();
+        textToSpeech.speak(
+                String.valueOf("To turn off, unplug from the socket"), TextToSpeech.QUEUE_ADD, null
+        );
       }
     });
 
