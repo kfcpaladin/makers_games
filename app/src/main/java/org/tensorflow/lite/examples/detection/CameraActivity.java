@@ -44,6 +44,8 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SwitchCompat;
+import android.speech.RecognizerIntent;
+
 
 import java.util.Timer;
 import android.util.Size;
@@ -71,11 +73,13 @@ public abstract class CameraActivity extends AppCompatActivity
     implements OnImageAvailableListener,
         Camera.PreviewCallback,
         CompoundButton.OnCheckedChangeListener,
-        View.OnClickListener {
+        View.OnClickListener,
+        TextToSpeech.OnInitListener 
+        {
   private static final Logger LOGGER = new Logger();
   public RectF temprect;
   private static final int PERMISSIONS_REQUEST = 1;
-
+  private static final int REQ_CODE_SPEECH_INPUT = 100;
 
   private static final String PERMISSION_CAMERA = Manifest.permission.CAMERA;
   protected int previewWidth = 0;
@@ -109,8 +113,15 @@ public abstract class CameraActivity extends AppCompatActivity
   private FrameLayout.LayoutParams lparams;
   private Random rand;
 
+  private TextToSpeech textToSpeech;
+
+  @Override
+  public void onInit(int i) { }
+
   @Override
   public void onCreate(final Bundle savedInstanceState) {
+    textToSpeech = new TextToSpeech(this, this);
+
     LOGGER.d("onCreate " + this);
     super.onCreate(null);
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -190,6 +201,9 @@ public abstract class CameraActivity extends AppCompatActivity
 
     openManual.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
+        textToSpeech.speak(
+          String.valueOf("To switch off, unplug from the socket"), TextToSpeech.QUEUE_ADD, null
+        )
         manualLayout.setVisibility(View.VISIBLE);
         webView.fromAsset("test.pdf")
                 .enableAnnotationRendering(true)
@@ -271,6 +285,39 @@ public abstract class CameraActivity extends AppCompatActivity
 
     plusImageView.setOnClickListener(this);
     minusImageView.setOnClickListener(this);
+    startVoiceInput();
+  }
+
+  private void startVoiceInput() {
+    Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+    intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Which machine would you like to isolate");
+    try {
+        startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
+    } catch (ActivityNotFoundException a) {
+
+    }
+  }
+
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+
+    switch (requestCode) {
+      case REQ_CODE_SPEECH_INPUT: {
+        if (resultCode == RESULT_OK && null != data) {
+          ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+          if ((result.get(0) == 'open' || result.get(0) == 'Open')
+            &&
+            (result.get(1) == 'manual' || result.get(1) == 'Manual')
+          ) {
+            openManual.PerformClick();
+          }
+        }
+        break;
+      }
+    }
   }
 
   protected int[] getRgbBytes() {
