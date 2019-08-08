@@ -319,8 +319,8 @@ public abstract class CameraActivity extends AppCompatActivity
   public void moveinstructional(){
     if (temprect == null || imageFrame == null){return;}
     else {
-      lparams.setMargins(50, 100, 0, 0);
-      instruction1.setLayoutParams(lparams);
+      //lparams.setMargins(50, 100, 0, 0);
+      //instruction1.setLayoutParams(lparams);
     }
   }
 
