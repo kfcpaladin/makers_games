@@ -132,6 +132,14 @@ public class MultiBoxTracker extends DetectorActivity{
   }
 
   public synchronized void draw(final Canvas canvas) {
+    if(iscreated!=1){
+      try{Thread.sleep(100);}
+      catch(InterruptedException ex){
+        return;
+      }
+    }
+
+
     final boolean rotated = sensorOrientation % 180 == 90;
     final float multiplier =
         Math.min(

@@ -18,6 +18,7 @@ package org.tensorflow.lite.examples.detection;
 
 import android.Manifest;
 import org.tensorflow.lite.examples.detection.tracking.MultiBoxTracker;
+import org.tensorflow.lite.examples.detection.DetectorActivity;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -62,6 +63,7 @@ import android.widget.Toast;
 import java.nio.ByteBuffer;
 import java.util.TimerTask;
 import java.util.Random;
+import android.widget.ProgressBar;
 
 import org.tensorflow.lite.examples.detection.env.ImageUtils;
 import org.tensorflow.lite.examples.detection.env.Logger;
@@ -90,7 +92,6 @@ public abstract class CameraActivity extends AppCompatActivity
   private int yRowStride;
   private Runnable postInferenceCallback;
   private Runnable imageConverter;
-  public int iscreated = 0;
 
   private LinearLayout bottomSheetLayout;
   private LinearLayout gestureLayout;
@@ -102,6 +103,7 @@ public abstract class CameraActivity extends AppCompatActivity
   protected ImageView bottomSheetArrowImageView;
   private ImageView plusImageView, minusImageView;
   public ImageView instruction1;
+  public ProgressBar progressBar;
   private SwitchCompat apiSwitchCompat;
   private TextView threadsTextView;
   private Button openManual, closeManual, openControl, closeControl;
@@ -109,10 +111,14 @@ public abstract class CameraActivity extends AppCompatActivity
   private FrameLayout.LayoutParams lparams;
   private Random rand;
 
+  public String typedetected = "";
+  public int progress = 0;
+
   @Override
   public void onCreate(final Bundle savedInstanceState) {
     LOGGER.d("onCreate " + this);
     super.onCreate(null);
+
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
     setContentView(R.layout.activity_camera);
@@ -143,6 +149,7 @@ public abstract class CameraActivity extends AppCompatActivity
     amptext = findViewById(R.id.current_info);
     instruction1 = findViewById(R.id.instruction_1);
     imageFrame = findViewById(R.id.image_frame);
+    progressBar = findViewById(R.id.progressBar2);
 
     lparams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
 
@@ -154,21 +161,42 @@ public abstract class CameraActivity extends AppCompatActivity
     //imageFrame.addView(instruction1, lparams);
 
     rand = new Random();
-    iscreated = 1;
     new Timer().schedule(new TimerTask() {
       @Override
       public void run() {
         runOnUiThread(new Runnable() {
           @Override
           public void run() {
+            progressBar.setProgress(progress);
+            if (typedetected.equals("tv") && progress==0){
+              imageFrame.setVisibility(View.VISIBLE);
+              progress = 33;
+              instruction1.setImageResource(R.drawable.instruction1);
+            }
 
           }
         });
       }
     },0,100);
 
+    instruction1.setOnClickListener(new OnClickListener() {
+      public void onClick(View v) {
+        if (progress==33) {
+          progress += 33;
+          instruction1.setImageResource(R.drawable.instruction2);
+        }
+        else if (progress==66) {
+          progress = 100;
+          instruction1.setImageResource(R.drawable.instruction3);
+        }
+        else{
+          progress = 0;
+          imageFrame.setVisibility(View.GONE);
+        }
+      }
+    });
 
-    new Timer().schedule(new TimerTask() {
+    /*new Timer().schedule(new TimerTask() {
       @Override
       public void run() {
         runOnUiThread(new Runnable() {
@@ -185,7 +213,7 @@ public abstract class CameraActivity extends AppCompatActivity
           }
         });
       }
-    },0,2000);
+    },0,2000);*/
 
 
     openManual.setOnClickListener(new OnClickListener() {
@@ -296,7 +324,7 @@ public abstract class CameraActivity extends AppCompatActivity
   }
 
   public void createboundingbox(RectF trackedPos, Canvas canvas, Paint boxPaint){
-    if (iscreated==1) {
+    if (false) {
       volttext.setText(String.format("%fmv", trackedPos.left));
       amptext.setText(String.format("%fma", trackedPos.right));
     }

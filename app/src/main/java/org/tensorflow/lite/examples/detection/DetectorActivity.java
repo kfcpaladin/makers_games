@@ -37,6 +37,26 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+
+
+import java.util.Timer;
+import android.util.Size;
+import android.view.Surface;
+import android.view.View;
+import android.view.ViewTreeObserver;
+import android.view.WindowManager;
+import android.widget.CompoundButton;
+import android.widget.FrameLayout;
+import android.view.View.OnClickListener;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
+import java.nio.ByteBuffer;
+import java.util.TimerTask;
+import java.util.Random;
+
 import android.graphics.Typeface;
 import android.media.ImageReader.OnImageAvailableListener;
 import android.os.SystemClock;
@@ -94,6 +114,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   private MultiBoxTracker tracker;
 
   private BorderedText borderedText;
+  public int iscreated = 1;
 
   @Override
   public void onPreviewSizeChosen(final Size size, final int rotation) {
@@ -217,9 +238,15 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
               if (location != null && result.getConfidence() >= minimumConfidence && result.getTitle().equals("tv")) {
                 canvas.drawRect(location, paint);
                 cropToFrameTransform.mapRect(location);
+
                 result.setLocation(location);
                 mappedRecognitions.add(result);
-
+                runOnUiThread(new Runnable() {
+                  @Override
+                  public void run() {
+                    typedetected= result.getTitle();
+                  }
+                });
                 //cropToFrameTransform.mapRect(location2);
                 //canvas.drawRect(location2, paint);
               }
