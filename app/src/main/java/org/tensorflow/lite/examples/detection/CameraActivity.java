@@ -64,6 +64,11 @@ import java.util.TimerTask;
 import java.util.Random;
 
 import android.speech.tts.TextToSpeech;
+import android.speech.RecognizerIntent;
+import android.content.Intent;
+import java.util.Locale;
+import java.util.ArrayList;
+
 
 import org.tensorflow.lite.examples.detection.env.ImageUtils;
 import org.tensorflow.lite.examples.detection.env.Logger;
@@ -289,6 +294,20 @@ public abstract class CameraActivity extends AppCompatActivity
 
     plusImageView.setOnClickListener(this);
     minusImageView.setOnClickListener(this);
+    startVoiceInput();
+  }
+
+  private void startVoiceInput() {
+    Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+    intent.putExtra(RecognizerIntent.ACTION_VOICE_SEARCH_HANDS_FREE);
+    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.ENGLISH);
+    // intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Which machine would you like to isolate");
+    try {
+      startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
+    } catch (ActivityNotFoundException a) {
+
+    }
+//    startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
   }
 
   protected int[] getRgbBytes() {
