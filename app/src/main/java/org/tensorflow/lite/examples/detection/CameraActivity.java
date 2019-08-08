@@ -192,6 +192,7 @@ public abstract class CameraActivity extends AppCompatActivity
         else{
           progress = 0;
           imageFrame.setVisibility(View.GONE);
+          typedetected = "";
         }
       }
     });
@@ -328,14 +329,6 @@ public abstract class CameraActivity extends AppCompatActivity
       volttext.setText(String.format("%fmv", trackedPos.left));
       amptext.setText(String.format("%fma", trackedPos.right));
     }
-    final RectF mini1 = new RectF(trackedPos.left, trackedPos.top-trackedPos.height()/4, trackedPos.left+trackedPos.width()/4, trackedPos.top);
-    final RectF mini2 = new RectF(trackedPos.left+trackedPos.width()/4, trackedPos.top-trackedPos.height()/4, trackedPos.centerX(), trackedPos.top);
-    final RectF mini3 = new RectF(trackedPos.centerX(), trackedPos.top-trackedPos.height()/4, trackedPos.right-trackedPos.width()/4, trackedPos.top);
-    final RectF mini4 = new RectF(trackedPos.right-trackedPos.width()/4, trackedPos.top-trackedPos.height()/4, trackedPos.right, trackedPos.top);
-    canvas.drawRect(mini1, boxPaint);
-    canvas.drawRect(mini2, boxPaint);
-    canvas.drawRect(mini3, boxPaint);
-    canvas.drawRect(mini4, boxPaint);
   }
 
   /** Callback for android.hardware.Camera API */
