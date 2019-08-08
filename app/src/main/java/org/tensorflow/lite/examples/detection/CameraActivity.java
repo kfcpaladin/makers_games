@@ -33,6 +33,19 @@ import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.Image.Plane;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.TextView;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import android.media.ImageReader;
 import android.media.ImageReader.OnImageAvailableListener;
 import android.os.Build;
@@ -178,6 +191,48 @@ public abstract class CameraActivity extends AppCompatActivity
         });
       }
     },0,100);
+    RequestQueue queue = Volley.newRequestQueue(this);
+    String url = "https://qrng.anu.edu.au/API/jsonI.php?length=2&type=uint16";
+    new Timer().schedule(new TimerTask() {
+      @Override
+      public void run() {
+        runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                    (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+
+                      @Override
+                      public void onResponse(JSONObject response) {
+                        try {
+                          JSONArray arrayResponse = response.getJSONArray("data");
+                          amptext.setText(arrayResponse.getString(0));
+                          volttext.setText(arrayResponse.getString(1));
+
+                          //if progress = 100 and power on, then report error and restart process.
+                        }
+                        catch (JSONException e){
+                          Toast.makeText(getApplicationContext(), "rip", Toast.LENGTH_LONG).show();
+                        }
+
+                      }
+                    }, new Response.ErrorListener() {
+
+                      @Override
+                      public void onErrorResponse(VolleyError error) {
+                        // TODO: Handle error
+                        Toast.makeText(getApplicationContext(), "internet machine broke", Toast.LENGTH_LONG);
+                      }
+                    });
+
+// Access the RequestQueue through your singleton class.
+            queue.add(jsonObjectRequest);
+
+          }
+        });
+      }
+    },0,100);
+
 
     instruction1.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
@@ -191,6 +246,7 @@ public abstract class CameraActivity extends AppCompatActivity
         }
         else{
           progress = 0;
+          //progress = 100;
           imageFrame.setVisibility(View.GONE);
           typedetected = "";
         }

@@ -13,14 +13,14 @@
     <application
         android:allowBackup="false"
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
+        android:label="Deannet v1"
         android:roundIcon="@drawable/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
         <activity
             android:name=".DetectorActivity"
-            android:label="@string/activity_name_detection"
+            android:label="Deannet v1"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

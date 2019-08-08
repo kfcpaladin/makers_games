@@ -236,6 +236,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
               final RectF location = result.getLocation();
               //final RectF location2 = new RectF(location.left, location.top-location.height()/2, location.right, location.top);
               if (location != null && result.getConfidence() >= minimumConfidence && result.getTitle().equals("tv")) {
+
                 canvas.drawRect(location, paint);
                 cropToFrameTransform.mapRect(location);
 
