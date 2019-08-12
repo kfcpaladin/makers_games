@@ -37,7 +37,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 import com.android.volley.Request;
@@ -53,11 +53,21 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Trace;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SwitchCompat;
+
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
+
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+
 
 import java.util.Timer;
 import android.util.Size;
@@ -123,9 +133,13 @@ public abstract class CameraActivity extends AppCompatActivity
   private PDFView webView;
   private FrameLayout.LayoutParams lparams;
   private Random rand;
-
+  public Query mQuery;
+  public Task mDocsTask;
+  public DocumentReference mDocs;
+  public DocumentSnapshot mDocssnap;
   public String typedetected = "";
   public int progress = 0;
+  public FirebaseFirestore fireStore;
 
   @Override
   public void onCreate(final Bundle savedInstanceState) {
@@ -142,6 +156,8 @@ public abstract class CameraActivity extends AppCompatActivity
     } else {
       requestPermission();
     }
+
+    fireStore = FirebaseFirestore.getInstance();
 
     threadsTextView = findViewById(R.id.threads);
     plusImageView = findViewById(R.id.plus);
@@ -192,6 +208,7 @@ public abstract class CameraActivity extends AppCompatActivity
       }
     },0,100);
     RequestQueue queue = Volley.newRequestQueue(this);
+    /*
     String url = "https://qrng.anu.edu.au/API/jsonI.php?length=2&type=uint16";
     new Timer().schedule(new TimerTask() {
       @Override
@@ -232,6 +249,7 @@ public abstract class CameraActivity extends AppCompatActivity
         });
       }
     },0,100);
+    */
 
 
     instruction1.setOnClickListener(new OnClickListener() {
@@ -253,24 +271,25 @@ public abstract class CameraActivity extends AppCompatActivity
       }
     });
 
-    /*new Timer().schedule(new TimerTask() {
+    new Timer().schedule(new TimerTask() {
       @Override
       public void run() {
         runOnUiThread(new Runnable() {
           @Override
           public void run() {
-            if (instrint == 0) {
-              instruction1.setImageResource(R.drawable.instruction2);
-              instrint = 1;
-            }
-            else {
-              instruction1.setImageResource(R.drawable.instruction1);
-              instrint = 0;
+
+            mDocsTask = fireStore.document("Machines/Forklift").get();
+            while (true) {
+              if (mDocsTask.isComplete() == true && mDocsTask != null) {
+                mDocssnap = (DocumentSnapshot)mDocsTask.getResult();
+                amptext.setText(mDocssnap.getData().toString());
+                break;
+              }
             }
           }
         });
       }
-    },0,2000);*/
+    },0,1000);
 
 
     openManual.setOnClickListener(new OnClickListener() {

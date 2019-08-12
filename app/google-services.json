@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "850868930272",
+    "firebase_url": "https://tcs-quiz-app.firebaseio.com",
+    "project_id": "tcs-quiz-app",
+    "storage_bucket": "tcs-quiz-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:850868930272:android:9d9378b3caf83a3c",
+        "android_client_info": {
+          "package_name": "org.tensorflow.lite.examples.detection"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "850868930272-akfvnr92b5c8nbvg1krlp8nedrnssp5m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2Y4z_owPfU1o5bJ5A0JB-2v-9RFsSYuo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "850868930272-akfvnr92b5c8nbvg1krlp8nedrnssp5m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
